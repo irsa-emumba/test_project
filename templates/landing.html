@@ -6,7 +6,11 @@
 
 <section class="hero">
     <div class="hero-inner">
-        <div class="hero-badge">Personal Finance Tracker</div>
+        <div class="hero-badge">
+            <span class="hero-badge-arrow" aria-hidden="true">→</span>
+            Personal Finance Tracker
+            <span class="hero-badge-arrow" aria-hidden="true">←</span>
+        </div>
         <h1 class="hero-title">
             Know where your<br>
             <em>money goes</em>
@@ -17,51 +21,52 @@
             one transaction at a time.
         </p>
         <div class="hero-actions">
-            <a href="{{ url_for('register') }}" class="btn-primary">Start tracking free</a>
+            <button type="button" class="btn-primary" data-video-open aria-haspopup="dialog" aria-controls="video-modal">See how it works</button>
             <a href="{{ url_for('login') }}" class="btn-ghost">Sign in</a>
         </div>
     </div>
-    <div class="hero-visual">
-        <div class="mock-card">
-            <div class="mock-card-header">
-                <span class="mock-label">March 2026</span>
-                <span class="mock-total">₹12,450</span>
+
+    <div class="hero-showcase" id="preview">
+        <div class="dash-card">
+            <div class="dash-dots" aria-hidden="true">
+                <span></span><span></span><span></span>
             </div>
-            <div class="mock-bars">
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Bills</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar" style="width: 72%"></div>
-                    </div>
-                    <span class="mock-amt">₹4,500</span>
+            <div class="dash-stats">
+                <div class="dash-stat">
+                    <span class="dash-label">This month</span>
+                    <span class="dash-value">₹18,240</span>
+                    <span class="dash-note dash-note-up">+12% vs last</span>
                 </div>
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Food</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar mock-bar-2" style="width: 52%"></div>
-                    </div>
-                    <span class="mock-amt">₹3,200</span>
+                <div class="dash-stat">
+                    <span class="dash-label">Budget left</span>
+                    <span class="dash-value">₹6,760</span>
+                    <span class="dash-note dash-note-up">43% remaining</span>
                 </div>
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Health</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar mock-bar-3" style="width: 33%"></div>
-                    </div>
-                    <span class="mock-amt">₹2,050</span>
+                <div class="dash-stat">
+                    <span class="dash-label">Transactions</span>
+                    <span class="dash-value">34</span>
+                    <span class="dash-note">this month</span>
                 </div>
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Transport</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar mock-bar-4" style="width: 28%"></div>
-                    </div>
-                    <span class="mock-amt">₹1,800</span>
+            </div>
+            <div class="dash-bars">
+                <div class="dash-bar-row">
+                    <span class="dash-cat">Food</span>
+                    <div class="dash-track"><div class="dash-fill dash-fill-food" style="width: 80%"></div></div>
+                </div>
+                <div class="dash-bar-row">
+                    <span class="dash-cat">Travel</span>
+                    <div class="dash-track"><div class="dash-fill dash-fill-travel" style="width: 62%"></div></div>
+                </div>
+                <div class="dash-bar-row">
+                    <span class="dash-cat">Bills</span>
+                    <div class="dash-track"><div class="dash-fill dash-fill-bills" style="width: 46%"></div></div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="features">
+<section class="features" id="features">
     <div class="features-inner">
         <div class="feature-card">
             <div class="feature-icon">₹</div>
@@ -89,4 +94,65 @@
     </div>
 </section>
 
+<!-- Video modal -->
+<!-- Replace with your YouTube embed URL (data-video-src below) -->
+<div class="video-modal" id="video-modal" role="dialog" aria-modal="true" aria-label="How Spendly works"
+     data-video-src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" hidden>
+    <div class="video-modal-content">
+        <button type="button" class="video-modal-close" data-video-close aria-label="Close video">&times;</button>
+        <div class="video-modal-frame">
+            <iframe title="How Spendly works"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Video modal — load the iframe src on open, clear it on close so playback stops
+(function () {
+    const modal = document.getElementById('video-modal');
+    const trigger = document.querySelector('[data-video-open]');
+    if (!modal || !trigger) return;
+
+    const iframe = modal.querySelector('iframe');
+    const closeBtn = modal.querySelector('[data-video-close]');
+    const videoSrc = modal.dataset.videoSrc;
+    function openModal() {
+        const sep = videoSrc.includes('?') ? '&' : '?';
+        iframe.src = videoSrc + sep + 'autoplay=1';
+        modal.hidden = false;
+        document.body.classList.add('modal-open');
+        // Next frame so the fade/scale transition runs
+        requestAnimationFrame(() => modal.classList.add('is-open'));
+        closeBtn.focus();
+        document.addEventListener('keydown', onKeydown);
+    }
+
+    function closeModal() {
+        if (modal.hidden) return;
+        iframe.src = '';
+        iframe.removeAttribute('src');
+        modal.classList.remove('is-open');
+        modal.hidden = true;
+        document.body.classList.remove('modal-open');
+        document.removeEventListener('keydown', onKeydown);
+        trigger.focus();
+    }
+
+    function onKeydown(e) {
+        if (e.key === 'Escape') closeModal();
+    }
+
+    trigger.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    // Clicks on the backdrop (outside the content box) close the modal
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+})();
+</script>
 {% endblock %}
